@@ -16,6 +16,7 @@
 #include <cstring>
 #include <vector>
 #include "../plugins/engine.h"
+#include "../plugins/NativeEditor.h"
 
 #define REQUIRE(x) do{if(!(x)){std::fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);std::exit(1);}}while(0)
 #include "timed-reference.h"
@@ -41,6 +42,14 @@ static void au(const char* path){
   auto component=AudioComponentRegister(&desc,CFSTR("Erika Rust: KekLocator"),0x10000,factory);REQUIRE(component);
   for(int mode:{0,1})for(double rate:{44100.,48000.,96000.,192000.}){
     AudioUnit unit=nullptr;REQUIRE(AudioComponentInstanceNew(component,&unit)==noErr);
+    // The editor lookup must resolve the actual renamed bundle before a host
+    // creates its Cocoa view. A stale Info.plist ID previously caused a crash.
+    AudioUnitCocoaViewInfo editor{};UInt32 editorSize=sizeof(editor);
+    REQUIRE(AudioUnitGetProperty(unit,kAudioUnitProperty_CocoaUI,kAudioUnitScope_Global,0,&editor,&editorSize)==noErr);
+    REQUIRE(editor.mCocoaAUViewBundleLocation&&editor.mCocoaAUViewClass[0]);
+    auto editorBundleURL=CFBundleCopyBundleURL(bundle);REQUIRE(editorBundleURL);
+    REQUIRE(CFEqual(editor.mCocoaAUViewBundleLocation,editorBundleURL));CFRelease(editorBundleURL);
+    CFRelease(editor.mCocoaAUViewBundleLocation);CFRelease(editor.mCocoaAUViewClass[0]);
     AudioStreamBasicDescription f{rate,kAudioFormatLinearPCM,kAudioFormatFlagIsFloat|kAudioFormatFlagIsNonInterleaved|kAudioFormatFlagsNativeEndian,4,1,4,2,32,0};
     REQUIRE(AudioUnitSetProperty(unit,kAudioUnitProperty_StreamFormat,kAudioUnitScope_Input,0,&f,sizeof(f))==noErr);
     REQUIRE(AudioUnitSetProperty(unit,kAudioUnitProperty_StreamFormat,kAudioUnitScope_Output,0,&f,sizeof(f))==noErr);
@@ -121,6 +130,13 @@ static void clap(const char* path){
   auto entry=static_cast<const clap_plugin_entry_t*>(dlsym(library,"clap_entry"));
 #endif
   REQUIRE(entry&&entry->init(path));
+#ifdef _WIN32
+  const auto editorHtml=keklocator::EditorHtml(library);
+  REQUIRE(editorHtml.find("<title>KekLocator")!=std::string::npos);
+  REQUIRE(editorHtml.find("globalThis.keklocatorUiBytes=")!=std::string::npos);
+  REQUIRE(editorHtml.find("<script src=")==std::string::npos);
+  REQUIRE(editorHtml.size()<2*1024*1024);
+#endif
   auto factory=static_cast<const clap_plugin_factory_t*>(entry->get_factory(CLAP_PLUGIN_FACTORY_ID));REQUIRE(factory&&factory->get_plugin_count(factory)==1);
   const auto descriptor=factory->get_plugin_descriptor(factory,0);
   REQUIRE(descriptor&&std::strcmp(descriptor->name,"KekLocator")==0);

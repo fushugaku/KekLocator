@@ -1,5 +1,6 @@
 // Format, parameter and native WebView glue only. Audio/sequencer/SRC are Rust.
 #include "KekLocator.h"
+#include "NativeEditor.h"
 #include "IPlug_include_in_plug_src.h"
 #include <algorithm>
 #include <cmath>
@@ -20,7 +21,17 @@ KekLocator::KekLocator(const InstanceInfo& info):iplug::Plugin(info,MakeConfig(k
     GetParam(i)->SetParseFunc([this,i](const char* text){float p[kParams];for(int j=0;j<kParams;j++)p[j]=GetParam(j)->GetNormalized();float value=p[i];ec_daw_parse(i,text,p,&value);return static_cast<double>(value);});
   }
 #ifdef WEBVIEW_EDITOR_DELEGATE
-  mEditorInitFunc=[this](){LoadIndexHtml(__FILE__,GetBundleID());EnableScroll(true);};
+  mEditorInitFunc=[this](){
+#ifdef OS_WIN
+    // Keep the complete editor inside each DLL: no host-relative files or server.
+    const auto html=keklocator::EditorHtml(keklocator::EditorModule());
+    if(!html.empty())LoadHTML(html.c_str());
+    else LoadHTML("<html lang='en'><body><h1>KekLocator</h1><p>Could not load the editor. Please reinstall the plug-in.</p></body></html>");
+#else
+    LoadIndexHtml(__FILE__,GetBundleID());
+#endif
+    EnableScroll(true);
+  };
 #endif
   MakeDefaultPreset("GREAT EYE",1);
   SetTailSize(48000*30);

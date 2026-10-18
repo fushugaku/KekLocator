@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>KekLocator v1.2.0 Unofficial Rust port</string>
 	<key>CFBundleIdentifier</key>
-	<string>local.ErikaRust.vst3.Echolocator</string>
+	<string>local.ErikaRust.vst3.KekLocator</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

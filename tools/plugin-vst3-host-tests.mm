@@ -21,6 +21,7 @@
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/parameterchanges.h"
 #include "../plugins/engine.h"
+#include "../plugins/NativeEditor.h"
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -38,6 +39,13 @@ int main(int argc,char** argv) {
   auto leave=reinterpret_cast<bool(*)()>(GetProcAddress(bundle,"ExitDll"));
   auto getFactory=reinterpret_cast<IPluginFactory*(*)()>(GetProcAddress(bundle,"GetPluginFactory"));
   REQUIRE(enter&&leave&&getFactory&&enter());
+#ifdef _WIN32
+  const auto editorHtml=keklocator::EditorHtml(bundle);
+  REQUIRE(editorHtml.find("<title>KekLocator")!=std::string::npos);
+  REQUIRE(editorHtml.find("globalThis.keklocatorUiBytes=")!=std::string::npos);
+  REQUIRE(editorHtml.find("<script src=")==std::string::npos);
+  REQUIRE(editorHtml.size()<2*1024*1024);
+#endif
 #else
   auto url=CFURLCreateFromFileSystemRepresentation(nullptr,reinterpret_cast<const UInt8*>(argv[1]),std::strlen(argv[1]),true);
   auto bundle=CFBundleCreate(nullptr,url); REQUIRE(bundle&&CFBundleLoadExecutable(bundle));
