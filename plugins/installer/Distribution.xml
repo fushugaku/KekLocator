@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+  <title>KekLocator @VERSION@</title>
+  <organization>local.ErikaRust</organization>
+  <options customize="always" require-scripts="false" hostArchitectures="arm64,x86_64"/>
+  <domains enable_anywhere="false" enable_localSystem="false" enable_currentUserHome="true"/>
+  <volume-check script="true">
+    <allowed-os-versions><os-version min="11.0"/></allowed-os-versions>
+  </volume-check>
+  <welcome file="welcome.html" mime-type="text/html"/>
+  <conclusion file="conclusion.html" mime-type="text/html"/>
+  <choices-outline>
+    <line choice="vst3"/>
+    <line choice="au"/>
+    <line choice="clap"/>
+  </choices-outline>
+  <choice id="vst3" title="VST3" description="~/Library/Audio/Plug-Ins/VST3" start_selected="true">
+    <pkg-ref id="local.ErikaRust.pkg.KekLocator.vst3"/>
+  </choice>
+  <choice id="au" title="Audio Unit (AU)" description="~/Library/Audio/Plug-Ins/Components" start_selected="true">
+    <pkg-ref id="local.ErikaRust.pkg.KekLocator.au"/>
+  </choice>
+  <choice id="clap" title="CLAP" description="~/Library/Audio/Plug-Ins/CLAP" start_selected="true">
+    <pkg-ref id="local.ErikaRust.pkg.KekLocator.clap"/>
+  </choice>
+  <pkg-ref id="local.ErikaRust.pkg.KekLocator.vst3" version="@VERSION@" onConclusion="None">KekLocator-VST3.pkg</pkg-ref>
+  <pkg-ref id="local.ErikaRust.pkg.KekLocator.au" version="@VERSION@" onConclusion="None">KekLocator-AU.pkg</pkg-ref>
+  <pkg-ref id="local.ErikaRust.pkg.KekLocator.clap" version="@VERSION@" onConclusion="None">KekLocator-CLAP.pkg</pkg-ref>
+</installer-gui-script>

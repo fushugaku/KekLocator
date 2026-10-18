@@ -1,0 +1,41 @@
+name: Windows
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        shell: pwsh
+        run: rustup update stable --no-self-update
+      - name: Prepare firmware
+        run: python tools/prepare-firmware.py
+      - name: Test Rust engine and editor model
+        shell: pwsh
+        run: |
+          $env:RUSTC = (rustup which --toolchain stable rustc).Trim()
+          $env:RUSTDOC = (rustup which --toolchain stable rustdoc).Trim()
+          rustup run stable cargo test --workspace --release --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build VST3 and CLAP
+        shell: pwsh
+        run: ./tools/build-plugins.ps1
+      - name: Test native Windows plug-ins
+        shell: pwsh
+        run: ./tools/verify-windows.ps1
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: KekLocator-Windows-x64
+          path: |
+            build/plugins/KekLocator-*-Windows-x64.zip
+            build/plugins/windows-verification.json
+          if-no-files-found: error
+          retention-days: 30

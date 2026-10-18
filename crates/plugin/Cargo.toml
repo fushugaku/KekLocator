@@ -1,0 +1,11 @@
+[package]
+name = "keklocator-plugin"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+keklocator-engine = { path = "../engine" }
+serde_json.workspace = true

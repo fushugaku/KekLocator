@@ -1,0 +1,9 @@
+[package]
+name = "keklocator"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+keklocator-engine = { path = "../engine" }
+serde_json.workspace = true
+hound = "3.5.1"

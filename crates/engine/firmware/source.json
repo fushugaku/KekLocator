@@ -1,0 +1,13 @@
+{
+  "product": "Erica Synths Echolocator",
+  "version": "1.05",
+  "release_date": "2026-09-29",
+  "product_url": "https://www.ericasynths.lv/echolocator-3229/",
+  "download_url": "https://www.ericasynths.lv/service/file/download/product_id/784/file_id/664/",
+  "original_filename": "echolocator_1.05.uf2",
+  "retrieved_at_utc": "2026-10-16T20:06:42Z",
+  "uf2_sha256": "da9447eb3e4dd978a56b38474ec22fc79bdbc780f5da154f85b19fac04a89304",
+  "manufacturer_checksum_available": false,
+  "version_string_address": "0x60043954",
+  "product_string_address": "0x60043690"
+}
