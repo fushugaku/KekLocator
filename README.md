@@ -9,6 +9,8 @@ uses a static Rust translation of Erica Synths Echolocator firmware 1.05.
 **Extended** adds performance and sequencing tools. This is an unofficial project
 and is not affiliated with Erica Synths.
 
+![KekLocator performance editor in Extended mode](docs/images/editor.png)
+
 ## Download and install
 
 Get the packages from [GitHub Releases](https://github.com/fushugaku/KekLocator/releases).

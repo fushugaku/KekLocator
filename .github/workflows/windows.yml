@@ -3,7 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    tags: ['v*']
+    paths:
+      - '.github/workflows/windows.yml'
+      - 'Cargo.*'
+      - 'crates/**'
+      - 'web/**'
+      - 'plugins/**'
+      - 'tools/**'
 permissions:
   contents: read
 jobs:
