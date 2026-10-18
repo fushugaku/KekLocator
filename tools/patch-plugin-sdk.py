@@ -4,10 +4,10 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 SDK=ROOT/'.tools/iplug2'
 def patch(name, old, new):
-    p=SDK/name;s=p.read_text()
+    p=SDK/name;s=p.read_text(encoding="utf-8")
     if new in s:return
     if s.count(old)!=1:raise RuntimeError(f'Pinned SDK changed: {name}')
-    p.write_text(s.replace(old,new))
+    p.write_text(s.replace(old,new),encoding="utf-8")
 patch('IPlug/VST3/IPlugVST3_ProcessorBase.cpp',
 '''        if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
         {''',

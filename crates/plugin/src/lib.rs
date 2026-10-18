@@ -151,16 +151,20 @@ fn library_path() -> Option<std::path::PathBuf> {
     #[cfg(target_os = "windows")]
     let base = std::path::PathBuf::from(std::env::var_os("APPDATA")?);
     #[cfg(target_os = "macos")]
-    let base = std::path::PathBuf::from(std::env::var_os("HOME")?)
-        .join("Library/Application Support");
+    let base =
+        std::path::PathBuf::from(std::env::var_os("HOME")?).join("Library/Application Support");
     #[cfg(not(any(target_os = "windows", target_os = "macos")))]
-    let base = std::env::var_os("XDG_DATA_HOME").map(std::path::PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".local/share")))?;
+    let base = std::env::var_os("XDG_DATA_HOME")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".local/share"))
+        })?;
     Some(base.join("KekLocator/library.json"))
 }
 fn legacy_library_path() -> Option<std::path::PathBuf> {
-    let home = std::path::PathBuf::from(std::env::var_os("HOME")
-        .or_else(|| std::env::var_os("USERPROFILE"))?);
+    let home = std::path::PathBuf::from(
+        std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE"))?,
+    );
     #[cfg(target_os = "macos")]
     let path = home.join("Library/Application Support/Echolocator Rust/library.json");
     #[cfg(not(target_os = "macos"))]

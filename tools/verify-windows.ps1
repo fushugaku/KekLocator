@@ -4,6 +4,8 @@ Set-Location $taskRoot
 function Run-Checked([scriptblock]$Command) { & $Command; if ($LASTEXITCODE -ne 0) { throw "Command failed: $Command" } }
 Run-Checked { cmake -S tools/windows-tests -B target/windows-tests -A x64 }
 Run-Checked { cmake --build target/windows-tests --config Release --target kek-clap-test kek-vst3-test validator --parallel 4 }
+$env:KEKLOCATOR_TEST_LIBRARY = '1'
+$env:APPDATA = Join-Path $taskRoot 'target/windows-library-test'
 $taskPackage = Join-Path $taskRoot 'build/plugins/windows-x64'
 Run-Checked { & target/windows-tests/Release/kek-clap-test.exe "$taskPackage/KekLocator.clap" }
 Run-Checked { & target/windows-tests/Release/kek-vst3-test.exe "$taskPackage/KekLocator.vst3/Contents/x86_64-win/KekLocator.vst3" }

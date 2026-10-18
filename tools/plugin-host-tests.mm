@@ -122,6 +122,9 @@ static void clap(const char* path){
 #endif
   REQUIRE(entry&&entry->init(path));
   auto factory=static_cast<const clap_plugin_factory_t*>(entry->get_factory(CLAP_PLUGIN_FACTORY_ID));REQUIRE(factory&&factory->get_plugin_count(factory)==1);
+  const auto descriptor=factory->get_plugin_descriptor(factory,0);
+  REQUIRE(descriptor&&std::strcmp(descriptor->name,"KekLocator")==0);
+  REQUIRE(std::strcmp(descriptor->id,"local.ErikaRust.Echolocator")==0);
   clap_host_t host{};host.clap_version=CLAP_VERSION;host.name="KekLocator transport tests";host.vendor="Local";host.version="1";host.url="https://github.com/free-audio/clap";
   host.get_extension=[](const clap_host_t*,const char*)->const void*{return nullptr;};host.request_restart=host.request_process=host.request_callback=[](const clap_host_t*){};
   for(int mode:{0,1})for(double rate:{44100.,48000.,96000.,192000.}){
@@ -172,6 +175,16 @@ static void clap(const char* path){
 int main(int argc,char**argv){
 #ifdef _WIN32
   REQUIRE(argc==2);clap(argv[1]);
+  // The Windows runner supplies an isolated APPDATA; test replacement of an
+  // existing library as well as its first write (MoveFileEx semantics).
+  REQUIRE(std::getenv("KEKLOCATOR_TEST_LIBRARY"));
+  for(const char* saved:{"{\"patches\":[],\"favorites\":[]}","{\"patches\":[],\"favorites\":[\"factory-0\"]}"}){
+    REQUIRE(ec_library_write(saved,std::strlen(saved))==0);
+    std::array<char,512> restored{};
+    REQUIRE(ec_library_read(restored.data(),restored.size())==std::strlen(saved));
+    REQUIRE(std::strcmp(restored.data(),saved)==0);
+  }
+  std::puts("PASS Windows user library: first write, atomic replacement, read back");
 #else
   REQUIRE(argc==3);au(argv[1]);clap(argv[2]);
 #endif

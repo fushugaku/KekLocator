@@ -10,7 +10,9 @@ def checkout(name,path,marker):
     if not(path/'.git').exists():subprocess.run(['git','init',str(path)],check=True)
     source=sources[name]
     subprocess.run(['git','-C',str(path),'fetch','--depth','1',source['url'],source['commit']],check=True)
-    subprocess.run(['git','-C',str(path),'checkout','--detach','FETCH_HEAD'],check=True)
+    # iPlug2 tracks placeholder READMEs inside empty dependency folders.
+    # These private cache folders are replaced by the pinned dependency checkout.
+    subprocess.run(['git','-C',str(path),'checkout','--force','--detach','FETCH_HEAD'],check=True)
     if 'submodules'in source:subprocess.run(['git','-C',str(path),'submodule','update','--init','--depth','1',*source['submodules']],check=True)
 sdk=ROOT/'.tools/iplug2'
 checkout('iPlug2',sdk,'iPlug2.cmake')

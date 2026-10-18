@@ -48,6 +48,7 @@ int main(int argc,char** argv) {
 #endif
   auto factory=owned(getFactory()); REQUIRE(factory);
   PClassInfo info{}; REQUIRE(factory->getClassInfo(0,&info)==kResultOk);
+  REQUIRE(std::strcmp(info.name,"KekLocator")==0);
   HostApplication host;
   for(int mode:{0,1})for(double rate:{44100.,48000.,96000.,192000.}) {
     IComponent* raw=nullptr;

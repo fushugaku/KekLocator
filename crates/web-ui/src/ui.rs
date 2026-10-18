@@ -99,7 +99,13 @@ impl State {
             pedal_restore: None,
         };
         if let Ok(Some(storage)) = window().local_storage() {
-            if let Ok(text) = storage.get_item(STORAGE).ok().flatten().or_else(|| storage.get_item("echolocator-rust:v1").ok().flatten()).ok_or(()) {
+            if let Ok(text) = storage
+                .get_item(STORAGE)
+                .ok()
+                .flatten()
+                .or_else(|| storage.get_item("echolocator-rust:v1").ok().flatten())
+                .ok_or(())
+            {
                 if let Ok(saved) = serde_json::from_str::<Saved>(&text) {
                     if PresetBank::new(saved.bank.presets.clone()).is_ok()
                         && saved.active < saved.bank.presets.len()
@@ -440,14 +446,7 @@ fn refresh(shared: &Shared) {
     );
     if let Some(e) = el("play-button") {
         e.set_inner_html(&icon(if s.playing { "pause" } else { "play" }));
-        let _ = e.set_attribute(
-            "aria-label",
-            if s.playing {
-                "Paused"
-            } else {
-                "Play"
-            },
-        );
+        let _ = e.set_attribute("aria-label", if s.playing { "Pause" } else { "Play" });
     }
     text("source-name", &s.source);
     text(
@@ -913,12 +912,7 @@ fn on_audio(shared: &Shared, event: Event) {
                 s.source = name.into();
             }
             s.live = data["live"].as_bool().unwrap_or(false);
-            s.status = if s.playing {
-                "Playing"
-            } else {
-                "Paused"
-            }
-            .into();
+            s.status = if s.playing { "Playing" } else { "Paused" }.into();
             s.error = false;
         }
         "recording" => {
